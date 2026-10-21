@@ -159,7 +159,7 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io();
+    const socket = io({ transports: ['websocket'] });   // 强制 WebSocket：cluster 多进程下轮询(POST)会跨 worker 报 400
     let myName = '';
     let myKeyword = '';
     let myPlayers = [];
