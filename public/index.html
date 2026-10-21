@@ -176,7 +176,7 @@
       document.getElementById('me').textContent = '昵称：' + name;
     });
 
-    const ASSET_VERSION = '20261023';   // 更新 game.html/relics.html 后改这里，强制用户拿最新版
+    const ASSET_VERSION = '20261024';   // 更新 game.html/relics.html 后改这里，强制用户拿最新版
     function openFrame(src) { const f = document.getElementById('game-frame'); f.src = src + '?v=' + ASSET_VERSION; f.style.display = 'block'; }
     window.addEventListener('message', (e) => { if (e.data === 'back-to-lobby') { const f = document.getElementById('game-frame'); f.style.display = 'none'; f.src = 'about:blank'; } });
 
