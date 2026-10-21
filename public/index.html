@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>越王勾践剑 · 擂台</title>
+<title>文枢·寻迹 · 游戏大厅</title>
 <style>
   :root { --gold:#c9a86a; --gold-bright:#e6c88a; --ink:#1c1a17; --cinnabar:#a3342a; --jade:#9fc3a8; }
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -36,39 +36,52 @@
   #board-tbl th { color:var(--gold-bright); letter-spacing:2px; }
   #board-tbl td:first-child { color:var(--gold); }
 
-  #battle { position:fixed; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
-  #battle h2 { color:var(--gold-bright); font-size:28px; letter-spacing:6px; text-shadow:0 0 16px rgba(230,200,138,.5); }
-  #battle #status { font-size:16px; letter-spacing:2px; color:#cdbfa0; }
+  /* 飞花令 */
+  #feihua { position:fixed; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+  #feihua h2 { color:var(--gold-bright); font-size:28px; letter-spacing:6px; text-shadow:0 0 16px rgba(230,200,138,.5); }
+  #fh-keyword { font-size:22px; color:#cdbfa0; }
+  #fh-keyword b { font-size:40px; color:var(--gold-bright); }
+  #fh-status { font-size:15px; letter-spacing:2px; color:#cdbfa0; min-height:22px; }
+  #fh-players { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  #fh-players .p { padding:7px 16px; border:1px solid var(--gold); border-radius:6px; background:rgba(0,0,0,.35); font-size:15px; transition:.2s; }
+  #fh-players .p.current { border-color:var(--gold-bright); box-shadow:0 0 14px rgba(230,200,138,.7); color:var(--gold-bright); }
+  #fh-players .p.out { opacity:.35; text-decoration:line-through; }
+  #fh-timer { font-size:22px; color:#e04848; font-weight:bold; }
+  #fh-log { width:min(620px, 92vw); height:180px; overflow-y:auto; background:rgba(0,0,0,.4); border:1px solid rgba(201,168,106,.3); border-radius:4px; padding:10px 14px; font-size:14px; line-height:1.9; }
+  #fh-log div { word-break:break-all; }
+  #fh-input-wrap { display:flex; gap:10px; }
+  #fh-input { width:min(360px, 60vw); padding:12px 16px; background:rgba(0,0,0,.4); border:1px solid var(--gold); border-radius:24px; color:#f0e6cc; font-family:inherit; font-size:15px; outline:none; }
+  #fh-submit { padding:10px 24px; border:none; border-radius:24px; background:linear-gradient(180deg,#e0b050,#b8860b); color:#1c1a17; font-size:16px; letter-spacing:2px; }
+  #fh-submit:disabled { opacity:.5; cursor:not-allowed; }
 
-  #pick { display:none; flex-direction:column; align-items:center; gap:16px; }
-  #pick .cards { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
-  #pick .card { width:150px; padding:14px 10px; text-align:center; background:rgba(0,0,0,.35); border:2px solid #666; border-radius:6px; cursor:pointer; transition:.15s; }
-  #pick .card:hover { border-color:var(--gold-bright); transform:translateY(-3px); }
-  #pick .card .nm { color:var(--gold-bright); font-size:18px; letter-spacing:2px; }
-  #pick .card .ds { color:#cdbfa0; font-size:13px; margin:6px 0; }
-  #pick .card .sk { color:#9fc3a8; font-size:12px; line-height:1.7; text-align:left; }
+  /* AI 讲解员 */
+  #ai-fab { position: fixed; right: 20px; bottom: 24px; z-index: 90; padding: 12px 20px; border-radius: 30px; border: 1px solid var(--gold); background: #8b1a1a; color: #fff; cursor: pointer; font-size: 15px; letter-spacing: 2px; box-shadow: 0 4px 16px rgba(0,0,0,.4); }
+  #ai-panel { position: fixed; right: 20px; bottom: 84px; z-index: 90; width: min(360px, 88vw); background: rgba(20,16,10,.96); border-radius: 14px; border: 1px solid var(--gold); box-shadow: 0 12px 40px rgba(0,0,0,.5); display: none; flex-direction: column; overflow: hidden; }
+  #ai-panel.open { display: flex; }
+  #ai-head { background: linear-gradient(160deg, #2a241c, #191510); color: var(--gold-bright); padding: 12px 16px; font-size: 16px; letter-spacing: 2px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gold); }
+  #ai-log { height: 260px; overflow-y: auto; padding: 12px 14px; font-size: 14px; line-height: 1.8; color: #f0e6cc; }
+  #ai-log .m { margin-bottom: 10px; }
+  #ai-log .user { text-align: right; }
+  #ai-log .user span { background: var(--gold); color: #1c1a17; padding: 6px 12px; border-radius: 14px; display: inline-block; text-align: left; }
+  #ai-log .bot span { background: rgba(201,168,106,.15); border: 1px solid var(--gold); padding: 6px 12px; border-radius: 14px; display: inline-block; }
+  #ai-in { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--gold); }
+  #ai-input { flex: 1; padding: 10px 12px; border: 1px solid var(--gold); border-radius: 20px; font-size: 14px; background: rgba(0,0,0,.35); color: #f0e6cc; outline: none; }
+  #ai-send { padding: 8px 16px; border: none; border-radius: 20px; background: #8b1a1a; color: #fff; cursor: pointer; font-size: 14px; }
 
-  #fight { display:none; flex-direction:column; align-items:center; gap:16px; width:100%; max-width:640px; }
-  .hps { width:100%; display:flex; flex-direction:column; gap:10px; }
-  .hprow { display:flex; align-items:center; gap:10px; }
-  .hprow .lb { width:90px; color:#cdbfa0; font-size:14px; text-align:right; }
-  .bar { flex:1; height:20px; background:rgba(0,0,0,.5); border:1px solid var(--gold); border-radius:3px; overflow:hidden; }
-  .bar .fill { height:100%; background:linear-gradient(180deg, #e04848, #8e2440); transition:width .2s; }
-  .bar .fill.self { background:linear-gradient(180deg, #4ac060, #2a7040); }
-  .hprow .num { width:40px; font-size:15px; color:#f0e6cc; }
-  #fight-log { width:100%; height:120px; overflow-y:auto; background:rgba(0,0,0,.4); border:1px solid rgba(201,168,106,.3); border-radius:4px; padding:8px 12px; font-size:14px; line-height:1.8; }
-  #fight-log div { word-break:break-all; }
-  .btns { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
-  .btns button { padding:12px 20px; font-size:16px; letter-spacing:2px; border-radius:4px; border:none; }
-  .btns .atk { background:linear-gradient(180deg, #e0b050, #b8860b); color:#1c1a17; box-shadow:0 4px 0 #7a5a10; }
-  .btns .q { background:linear-gradient(180deg, #e06850, #a03424); color:#fff; box-shadow:0 4px 0 #702018; }
-  .btns .e { background:linear-gradient(180deg, #60a0d0, #2a6080); color:#fff; box-shadow:0 4px 0 #1a4058; }
-  .btns .r { background:linear-gradient(180deg, #68d088, #2a8048); color:#fff; box-shadow:0 4px 0 #1a5830; }
-  .btns button:active { transform:translateY(3px); box-shadow:none; }
-  .btns button:disabled { filter:grayscale(.7) brightness(.6); cursor:not-allowed; transform:none; }
+  /* 隐私政策弹窗 */
+  #privacy-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(10,8,5,.72); display: none; align-items: center; justify-content: center; padding: 20px; }
+  #privacy-overlay.open { display: flex; }
+  #privacy-box { width: min(560px, 92vw); max-height: 80vh; overflow-y: auto; background: rgba(24,19,13,.98); border: 1px solid var(--gold); border-radius: 12px; padding: 22px 24px; color: #e6dcc2; font-size: 14px; line-height: 1.9; }
+  #privacy-box h3 { color: var(--gold-bright); font-size: 18px; margin-bottom: 12px; letter-spacing: 2px; }
+  #privacy-box h4 { color: #e0c98a; margin: 14px 0 6px; font-size: 15px; }
+  #privacy-box p, #privacy-box li { color: #d8cfb8; }
+  #privacy-box ul { padding-left: 18px; }
+  #privacy-close { float: right; background: none; border: none; color: #e6c88a; font-size: 22px; cursor: pointer; }
 </style>
 </head>
 <body>
+  <iframe id="game-frame" style="position:fixed;inset:0;width:100%;height:100%;border:none;z-index:100;display:none;background:#0d0b09;"></iframe>
+
   <div id="login">
     <h1>越王勾践剑</h1>
     <p>游客账号 · 无需注册</p>
@@ -79,8 +92,10 @@
   <div id="lobby">
     <div class="top">
       <span id="me"></span>
-      <button onclick="openGame()">▶ 进入剧情游戏</button>
-      <button id="matchBtn" onclick="match()">⚔ 联机对战</button>
+      <button onclick="openFrame('/game')">▶ 进入剧情游戏</button>
+      <button onclick="openFrame('/relics')">🏛 文物图鉴</button>
+      <button id="matchBtn" onclick="match()">⚔ 联机对战（飞花令）</button>
+      <button onclick="document.getElementById('privacy-overlay').classList.add('open')">🔒 隐私政策</button>
     </div>
     <div class="cols">
       <div class="chat">
@@ -95,36 +110,60 @@
     </div>
   </div>
 
-  <div id="battle">
-    <h2>⚔ 擂台比武</h2>
-    <div id="status"></div>
-    <div id="pick">
-      <div style="color:var(--gold-bright);letter-spacing:3px">选择你的兵器</div>
-      <div class="cards" id="weapon-cards"></div>
+  <div id="feihua">
+    <h2>飞花令</h2>
+    <div id="fh-keyword">请接含「<b id="fh-kw"></b>」的诗句</div>
+    <div id="fh-status"></div>
+    <div id="fh-players"></div>
+    <div id="fh-timer"></div>
+    <div id="fh-log"></div>
+    <div id="fh-input-wrap">
+      <input id="fh-input" placeholder="输入含关键字的诗词" maxlength="60">
+      <button id="fh-submit" onclick="submitAnswer()">接令</button>
     </div>
-    <div id="fight">
-      <div class="hps">
-        <div class="hprow"><div class="lb" id="foeName">对手</div><div class="bar"><div class="fill" id="foeBar" style="width:100%"></div></div><div class="num" id="foeHp">100</div></div>
-        <div class="hprow"><div class="lb" id="myName">我</div><div class="bar"><div class="fill self" id="myBar" style="width:100%"></div></div><div class="num" id="myHp">100</div></div>
-      </div>
-      <div id="fight-log"></div>
-      <div class="btns">
-        <button class="atk" id="btn-atk" onclick="act('atk')">⚔ 普攻</button>
-        <button class="q" id="btn-q" onclick="act('q')">Q 技能</button>
-        <button class="e" id="btn-e" onclick="act('e')">E 技能</button>
-        <button class="r" id="btn-r" onclick="act('r')">R 回春术</button>
-      </div>
+  </div>
+
+  <button id="ai-fab">🤖 AI 讲解员</button>
+  <div id="ai-panel">
+    <div id="ai-head"><span>🤖 AI 讲解员</span><button id="ai-close" style="background:none;border:none;color:#e6c88a;font-size:20px;cursor:pointer">×</button></div>
+    <div id="ai-log"></div>
+    <div id="ai-in"><input id="ai-input" placeholder="问我：怎么玩 / 有哪些镇馆之宝"><button id="ai-send">发送</button></div>
+  </div>
+
+  <div id="privacy-overlay">
+    <div id="privacy-box">
+      <button id="privacy-close">×</button>
+      <h3>隐私政策与用户协议</h3>
+      <p>《文枢·寻迹》重视您的隐私。使用本平台即表示您同意以下条款：</p>
+      <h4>一、信息收集</h4>
+      <ul>
+        <li>本平台为<b>游客账号</b>模式，仅收集您自填的昵称（不超过 12 字），<b>不收集</b>手机号、邮箱、密码、身份证号等个人身份信息。</li>
+        <li>昵称用于聊天大厅、排行榜与联机对战的身份展示。</li>
+      </ul>
+      <h4>二、信息存储与用途</h4>
+      <ul>
+        <li>仅存储昵称与战绩（胜场/负场），用于排行榜排名，遵循<b>最小必要</b>原则。</li>
+        <li>不向任何第三方出售或共享您的数据。</li>
+      </ul>
+      <h4>三、内容安全</h4>
+      <ul>
+        <li>聊天系统接入<b>敏感词过滤</b>，违规内容将被自动拦截并提示。</li>
+        <li>请文明发言，共同维护良好的交流环境。</li>
+      </ul>
+      <h4>四、您的权利</h4>
+      <ul>
+        <li>您可以随时更换昵称；退出即不保留会话信息。</li>
+      </ul>
     </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
-    const MAX_HP = 100;
-    const WEAPON_NAME = { qingfeng:'青锋剑', chixiao:'赤霄剑', xuanbing:'玄冰剑', pojun:'破军剑' };
-    let myName = '', mySide = '';
-    let myWeapon = null;
-    let cd = { atk:0, q:0, e:0, r:0 };
+    let myName = '';
+    let myKeyword = '';
+    let myPlayers = [];
+    let fhTimer = null, fhLeft = 0;
 
     function join() {
       const n = document.getElementById('nick').value.trim() || ('游客' + Math.floor(1000 + Math.random() * 9000));
@@ -137,7 +176,10 @@
       document.getElementById('me').textContent = '昵称：' + name;
     });
 
-    function openGame() { window.open('/game', '_blank'); }
+    const ASSET_VERSION = '20261021';   // 更新 game.html/relics.html 后改这里，强制用户拿最新版
+    function openFrame(src) { const f = document.getElementById('game-frame'); f.src = src + '?v=' + ASSET_VERSION; f.style.display = 'block'; }
+    window.addEventListener('message', (e) => { if (e.data === 'back-to-lobby') { const f = document.getElementById('game-frame'); f.style.display = 'none'; f.src = 'about:blank'; } });
+
     function send() { const t = document.getElementById('msg').value.trim(); if (t) { socket.emit('chat', t); document.getElementById('msg').value = ''; } }
     socket.on('chat', (m) => {
       const d = document.createElement('div');
@@ -157,93 +199,195 @@
       document.getElementById('matchBtn').textContent = '匹配中…';
       socket.emit('match');
     }
+    socket.on('status', (t) => { document.getElementById('fh-status').textContent = t; });
 
-    /* 匹配成功 → 选武器 */
-    socket.on('battle-start', (d) => {
-      mySide = d.you;
+    /* ---- 飞花令 ---- */
+    socket.on('feihua-start', (d) => {
+      myKeyword = d.keyword;
+      myPlayers = d.players.map((n, i) => ({ name: n, out: false }));
       document.getElementById('lobby').style.display = 'none';
-      document.getElementById('battle').style.display = 'flex';
-      document.getElementById('status').textContent = '对手：' + d.opponent;
-      document.getElementById('pick').style.display = 'flex';
-      document.getElementById('fight').style.display = 'none';
-      const cards = document.getElementById('weapon-cards');
-      cards.innerHTML = '';
-      d.weapons.forEach(w => {
-        const c = document.createElement('div');
-        c.className = 'card';
-        c.innerHTML = '<div class="nm">' + w.name + '</div><div class="ds">' + w.desc + '</div>' +
-          '<div class="sk">普攻 ' + w.atk + ' 伤<br>Q ' + w.q + ' ' + w.qDmg + ' 伤<br>E ' + w.e + ' ' + w.eDmg + ' 伤</div>';
-        c.onclick = () => {
-          myWeapon = w.id;
-          socket.emit('select-weapon', w.id);
-          document.getElementById('pick').style.display = 'none';
-          document.getElementById('status').textContent = '已选 ' + w.name + '，等待对手…';
-        };
-        cards.appendChild(c);
-      });
+      document.getElementById('feihua').style.display = 'flex';
+      document.getElementById('fh-kw').textContent = d.keyword;
+      document.getElementById('fh-log').innerHTML = '';
+      renderPlayers();
+      fhLog('🎴 飞花令开始！关键字：' + d.keyword + '（' + d.players.length + ' 人）');
     });
 
-    /* 双方选好 → 开战 */
-    socket.on('battle-ready', (d) => {
-      document.getElementById('status').textContent = '对手兵器：' + WEAPON_NAME[d.foeWeapon] + '，开战！';
-      document.getElementById('pick').style.display = 'none';
-      document.getElementById('fight').style.display = 'flex';
-      document.getElementById('myName').textContent = myName + '（' + WEAPON_NAME[d.myWeapon] + '）';
-      document.getElementById('foeName').textContent = '对手（' + WEAPON_NAME[d.foeWeapon] + '）';
-      setHP(100, 100);
-      document.getElementById('fight-log').innerHTML = '';
-      log('⚔ 比武开始！');
+    socket.on('feihua-turn', (d) => {
+      document.getElementById('fh-status').textContent = '轮到：' + d.current;
+      renderPlayers(d.current);
+      document.getElementById('fh-submit').disabled = (d.current !== myName);
+      document.getElementById('fh-input').disabled = (d.current !== myName);
+      if (d.current === myName) document.getElementById('fh-input').focus();
+      startTimer();
     });
 
-    function act(a) {
-      socket.emit('action', a);
-      // 本地冷却预估（服务器仍会二次校验）
-      const now = Date.now();
-      const cdMap = { atk: 800, q: 4000, e: 6000, r: 10000 };
-      cd[a] = now + cdMap[a];
-      updateBtns();
-    }
-    function setHP(my, foe) {
-      document.getElementById('myHp').textContent = my;
-      document.getElementById('foeHp').textContent = foe;
-      document.getElementById('myBar').style.width = (my / MAX_HP * 100) + '%';
-      document.getElementById('foeBar').style.width = (foe / MAX_HP * 100) + '%';
-    }
-    function log(t) {
-      const d = document.createElement('div');
-      d.textContent = t;
-      document.getElementById('fight-log').appendChild(d);
-      const lg = document.getElementById('fight-log'); lg.scrollTop = lg.scrollHeight;
-    }
-    function updateBtns() {
-      const now = Date.now();
-      document.getElementById('btn-atk').disabled = now < cd.atk;
-      document.getElementById('btn-q').disabled = now < cd.q;
-      document.getElementById('btn-e').disabled = now < cd.e;
-      document.getElementById('btn-r').disabled = now < cd.r;
-    }
-
-    socket.on('hp', (d) => {
-      const my = mySide === 'a' ? d.a : d.b;
-      const foe = mySide === 'a' ? d.b : d.a;
-      setHP(my, foe);
-      const who = d.attacker === mySide ? '我' : '对手';
-      const what = d.action === 'r' ? ('回春术，回复 ' + d.heal + ' 血') : (d.text + '，造成 ' + d.dmg + ' 伤害');
-      log(who + ' 使用 ' + what);
+    socket.on('feihua-said', (d) => { fhLog(d.name + '：' + d.answer); });
+    socket.on('feihua-out', (d) => {
+      const p = myPlayers.find(x => x.name === d.name);
+      if (p) p.out = true;
+      renderPlayers();
+      fhLog('❌ ' + d.name + ' 出局（' + d.reason + '）');
     });
 
-    socket.on('battle-over', (d) => {
-      document.getElementById('status').textContent = (d.winner === myName) ? '🎉 你赢了！' : ('💀 你输了，对手：' + d.winner);
+    socket.on('feihua-over', (d) => {
+      clearInterval(fhTimer);
+      document.getElementById('fh-status').textContent = (d.winner === myName) ? '🎉 你赢了！' : ('🏆 胜者：' + d.winner);
+      document.getElementById('fh-submit').disabled = true;
+      document.getElementById('fh-input').disabled = true;
       setTimeout(() => {
-        document.getElementById('battle').style.display = 'none';
+        document.getElementById('feihua').style.display = 'none';
         document.getElementById('lobby').style.display = 'flex';
         document.getElementById('matchBtn').disabled = false;
-        document.getElementById('matchBtn').textContent = '⚔ 联机对战';
-        myWeapon = null;
-      }, 2600);
+        document.getElementById('matchBtn').textContent = '⚔ 联机对战（飞花令）';
+      }, 3000);
     });
 
-    setInterval(updateBtns, 200);
+    function renderPlayers(current) {
+      const box = document.getElementById('fh-players');
+      box.innerHTML = '';
+      myPlayers.forEach(p => {
+        const d = document.createElement('div');
+        d.className = 'p' + (p.out ? ' out' : '') + (p.name === current ? ' current' : '');
+        d.textContent = p.name + (p.out ? '（出局）' : '');
+        box.appendChild(d);
+      });
+    }
+    function fhLog(t) {
+      const d = document.createElement('div');
+      d.textContent = t;
+      document.getElementById('fh-log').appendChild(d);
+      const lg = document.getElementById('fh-log'); lg.scrollTop = lg.scrollHeight;
+    }
+    function startTimer() {
+      clearInterval(fhTimer);
+      fhLeft = 60;
+      document.getElementById('fh-timer').textContent = fhLeft + 's';
+      fhTimer = setInterval(() => {
+        fhLeft--;
+        document.getElementById('fh-timer').textContent = (fhLeft > 0 ? fhLeft : 0) + 's';
+        if (fhLeft <= 0) clearInterval(fhTimer);
+      }, 1000);
+    }
+    function submitAnswer() {
+      const v = document.getElementById('fh-input').value.trim();
+      if (!v) return;
+      document.getElementById('fh-input').value = '';
+      socket.emit('feihua-answer', v);
+    }
+    document.getElementById('fh-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAnswer(); });
+
+    /* ---- 大厅 AI 讲解员 ---- */
+    const LOBBY_AI = [
+      { k: ['越王勾践剑', '勾践剑'], v: '越王勾践剑是湖北省博物馆镇馆之宝，春秋晚期青铜剑，被誉为"天下第一剑"。' },
+      { k: ['曾侯乙编钟', '编钟'], v: '曾侯乙编钟是湖北省博物馆镇馆之宝，战国早期青铜礼乐器，共 65 件。' },
+      { k: ['镇馆之宝', '国宝'], v: '十大镇馆之宝包括越王勾践剑、曾侯乙编钟、元青花四爱图梅瓶、郧县人头骨化石等。点"文物图鉴"查看。' },
+      { k: ['文物', '图鉴', '博物馆'], v: '点大厅顶部"🏛 文物图鉴"，看 55 件一级文物，AI 讲解员逐个讲解。' },
+      { k: ['飞花令', '联机', '对战'], v: '飞花令是 2-5 人的诗词接龙：随机关键字，轮流接含该字的诗句，60 秒答不出即出局，剩一人者胜。' },
+      { k: ['怎么玩', '玩法', '操作'], v: '大厅点"进入剧情游戏"玩单机剧情，点"文物图鉴"看文物，点"联机对战"玩飞花令。' },
+      { k: ['排行榜', '排名'], v: '排行榜按胜场数排名，飞花令获胜会增加胜场。' },
+      { k: ['剧情', '游戏', '故事'], v: '剧情游戏讲的是穿越到湖北博物馆、与越王勾践剑有关的一段江湖奇遇。' },
+    ];
+    /* ---- AI 讲解员语音：统一温柔女声，快速开始 + 稍快语速 ---- */
+    let VOICES = [];
+    let _voiceReady = false;
+    let _voiceWaiters = [];
+    function loadVoices() {
+      try {
+        VOICES = speechSynthesis.getVoices();
+        if (VOICES.length) { _voiceReady = true; _voiceWaiters.splice(0).forEach(fn => fn()); }
+      } catch (e) {}
+    }
+    if ('speechSynthesis' in window) {
+      loadVoices();
+      speechSynthesis.onvoiceschanged = loadVoices;
+      // 最多等 300ms 就开念，别让用户干等
+      setTimeout(() => { _voiceReady = true; _voiceWaiters.splice(0).forEach(fn => fn()); }, 300);
+    }
+    function pickVoice() {
+      const zh = VOICES.filter(v => /zh|cmn|chinese|中文|普通话/i.test((v.lang || '') + ' ' + (v.name || '')));
+      const female = v => /xiaoxiao|huihui|yaoyao|ting-?ting|female|女|晓晓|慧慧|婷婷/i.test(v.name || '');
+      const natural = v => /natural|online|自然|在线/i.test(v.name || '');
+      const cand = zh.filter(female);
+      return cand.find(natural) || cand[0] || zh.find(natural) || zh[0] || null;
+    }
+    function doSpeak(text) {
+      const u = new SpeechSynthesisUtterance(text.replace(/\n/g, ' '));
+      const v = pickVoice();
+      if (v) { u.voice = v; u.lang = v.lang || 'zh-CN'; }
+      else u.lang = 'zh-CN';
+      u.pitch = 1.1;   // 温柔女声
+      u.rate = 1.0;    // 稍快语速
+      u.volume = 1;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }
+    function speak(text) {
+      try {
+        if (!('speechSynthesis' in window)) return;
+        if (_voiceReady) doSpeak(text);
+        else _voiceWaiters.push(() => doSpeak(text));
+      } catch (e) {}
+    }
+    function aiSay(text, who) {
+      const d = document.createElement('div');
+      d.className = 'm ' + (who === 'user' ? 'user' : 'bot');
+      d.innerHTML = '<span>' + text.replace(/\n/g, '<br>') + '</span>';
+      document.getElementById('ai-log').appendChild(d);
+      const lg = document.getElementById('ai-log'); lg.scrollTop = lg.scrollHeight;
+      if (who === 'bot') speak(text);
+    }
+    const AI_SYSTEM = '你是《文枢·寻迹》数字文博平台的 AI 讲解员"文枢"，温柔博学、语气亲切。用简洁中文（不超过 120 字）介绍越王勾践剑等湖北博物馆文物，并引导用户使用平台（剧情游戏/文物图鉴/飞花令对战）。参考知识：' + LOBBY_AI.map(i => i.v).join('；');
+    async function askLLM(question) {
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 8000);
+        const res = await fetch('https://text.pollinations.ai/openai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'openai', messages: [{ role: 'system', content: AI_SYSTEM }, { role: 'user', content: question }] }),
+          signal: ctrl.signal
+        });
+        clearTimeout(timer);
+        if (!res.ok) return null;
+        const text = await res.text();
+        try { const j = JSON.parse(text); const c = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content; if (c) return c.trim(); } catch (e) {}
+        return (text || '').trim() || null;
+      } catch (e) { return null; }
+    }
+    function aiReply(q) {
+      q = (q || '').trim();
+      if (!q) return;
+      const ql = q.toLowerCase();
+      for (const item of LOBBY_AI) {
+        if (item.k.some(k => ql.indexOf(k) !== -1)) { aiSay(item.v, 'bot'); return; }
+      }
+      // 本地知识库没命中 → 走大模型
+      const think = document.createElement('div');
+      think.className = 'm bot';
+      think.innerHTML = '<span>让我想想…</span>';
+      const lg = document.getElementById('ai-log');
+      lg.appendChild(think); lg.scrollTop = lg.scrollHeight;
+      askLLM(q).then(ans => {
+        think.remove();
+        if (ans) aiSay(ans, 'bot');
+        else aiSay('（网络暂时不通）可以问我："怎么玩""有哪些镇馆之宝""飞花令是什么"，或点"文物图鉴"让 AI 讲解员讲文物。', 'bot');
+      });
+    }
+    function aiAsk() {
+      const v = document.getElementById('ai-input').value.trim();
+      if (!v) return;
+      aiSay(v, 'user');
+      document.getElementById('ai-input').value = '';
+      aiReply(v);
+    }
+    document.getElementById('ai-fab').onclick = () => document.getElementById('ai-panel').classList.add('open');
+    document.getElementById('ai-close').onclick = () => document.getElementById('ai-panel').classList.remove('open');
+    document.getElementById('privacy-close').onclick = () => document.getElementById('privacy-overlay').classList.remove('open');
+    document.getElementById('privacy-overlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+    document.getElementById('ai-send').onclick = aiAsk;
+    document.getElementById('ai-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') aiAsk(); });
+    aiSay('你好，我是 AI 讲解员。问我"怎么玩""有哪些镇馆之宝"，或点"文物图鉴"看文物吧～', 'bot');
   </script>
 </body>
 </html>
