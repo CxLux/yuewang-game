@@ -1,0 +1,4 @@
+# 保证 .sh 脚本在 Git 中以 LF 换行，上传到 Linux 服务器后可直接执行
+*.sh text eol=lf
+*.js text eol=lf
+*.json text eol=lf
