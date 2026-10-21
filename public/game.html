@@ -390,6 +390,8 @@
     <!-- 人物立绘揭示 -->
     <div id="portrait-reveal"><img alt=""></div>
 
+    <div id="loading-tip" style="position:fixed;inset:0;z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0d0b09;color:#e6c88a;font-size:20px;letter-spacing:4px;">加载中，请稍候…</div>
+
     <!-- 场景一：报名 -->
     <div id="scene-intro">
       <div class="ornate-frame">
@@ -1271,6 +1273,8 @@ window.TEX = (function () {
 
   /* ================= 游戏主流程 ================= */
   async function startGame() {
+  const loadTip = document.getElementById("loading-tip");
+  if (loadTip) loadTip.style.display = "none";
     /* 1. 报名 */
     await new Promise((resolve) => {
       nameInput.addEventListener("input", () => {
@@ -1278,6 +1282,7 @@ window.TEX = (function () {
         if (playerName.length > 0) btnConfirmWrap.classList.add("show");
         else btnConfirmWrap.classList.remove("show");
       });
+      if (nameInput.value.trim().length > 0) btnConfirmWrap.classList.add("show");
       btnConfirm.addEventListener("click", () => {
         if (!playerName) return;
         AudioManager.play("click");
