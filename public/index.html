@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>越王勾践剑 · 擂台</title>
+<style>
+  :root { --gold:#c9a86a; --gold-bright:#e6c88a; --ink:#1c1a17; --cinnabar:#a3342a; --jade:#9fc3a8; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:100%; height:100%; overflow:hidden; background:radial-gradient(ellipse at 50% 30%, #2a241c, #0d0b09 70%); font-family:"KaiTi","STKaiti","楷体","SimSun",serif; color:#f0e6cc; }
+  button { font-family:inherit; cursor:pointer; }
+
+  #login { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+  #login h1 { color:var(--gold-bright); font-size:40px; letter-spacing:10px; text-shadow:0 0 20px rgba(230,200,138,.5); }
+  #login p { color:#cdbfa0; letter-spacing:2px; }
+  #login input { width:260px; padding:12px; text-align:center; font-size:18px; letter-spacing:2px; background:rgba(0,0,0,.35); border:1px solid var(--gold); border-radius:3px; color:#f3ead3; font-family:inherit; outline:none; }
+  #login button { padding:12px 44px; font-size:18px; letter-spacing:4px; color:var(--gold-bright); background:linear-gradient(180deg, rgba(201,168,106,.18), rgba(201,168,106,.05)); border:1px solid var(--gold); border-radius:3px; }
+  #login button:hover { background:linear-gradient(180deg, var(--gold), #a8813f); color:#1c1a17; }
+
+  #lobby { position:fixed; inset:0; display:none; flex-direction:column; padding:16px; }
+  .top { display:flex; align-items:center; gap:14px; padding:12px 16px; background:rgba(20,16,10,.7); border:1px solid var(--gold); border-radius:4px; margin-bottom:14px; }
+  .top #me { color:var(--gold-bright); letter-spacing:2px; }
+  .top button { padding:10px 22px; font-size:16px; letter-spacing:3px; color:var(--gold-bright); background:linear-gradient(180deg, rgba(201,168,106,.18), rgba(201,168,106,.05)); border:1px solid var(--gold); border-radius:3px; }
+  .top button:hover { background:linear-gradient(180deg, var(--gold), #a8813f); color:#1c1a17; }
+  .top button:disabled { opacity:.5; cursor:not-allowed; }
+  .cols { flex:1; display:flex; gap:14px; min-height:0; }
+  .chat, .board { flex:1; background:rgba(20,16,10,.7); border:1px solid var(--gold); border-radius:4px; padding:14px; display:flex; flex-direction:column; }
+  .chat h3, .board h3 { color:var(--gold-bright); letter-spacing:4px; margin-bottom:10px; text-align:center; }
+  #chat-log { flex:1; overflow-y:auto; font-size:15px; line-height:1.8; padding:6px; }
+  #chat-log div { word-break:break-all; }
+  .chat .in { display:flex; gap:8px; margin-top:8px; }
+  .chat .in input { flex:1; padding:8px; background:rgba(0,0,0,.35); border:1px solid var(--gold); border-radius:3px; color:#f3ead3; font-family:inherit; outline:none; }
+  .chat .in button { padding:8px 18px; color:var(--gold-bright); background:rgba(201,168,106,.15); border:1px solid var(--gold); border-radius:3px; }
+  #board-tbl { width:100%; border-collapse:collapse; font-size:15px; }
+  #board-tbl th, #board-tbl td { padding:6px 8px; border-bottom:1px solid rgba(201,168,106,.2); text-align:center; }
+  #board-tbl th { color:var(--gold-bright); letter-spacing:2px; }
+  #board-tbl td:first-child { color:var(--gold); }
+
+  #battle { position:fixed; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
+  #battle h2 { color:var(--gold-bright); font-size:28px; letter-spacing:6px; text-shadow:0 0 16px rgba(230,200,138,.5); }
+  #battle #status { font-size:16px; letter-spacing:2px; color:#cdbfa0; }
+
+  #pick { display:none; flex-direction:column; align-items:center; gap:16px; }
+  #pick .cards { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  #pick .card { width:150px; padding:14px 10px; text-align:center; background:rgba(0,0,0,.35); border:2px solid #666; border-radius:6px; cursor:pointer; transition:.15s; }
+  #pick .card:hover { border-color:var(--gold-bright); transform:translateY(-3px); }
+  #pick .card .nm { color:var(--gold-bright); font-size:18px; letter-spacing:2px; }
+  #pick .card .ds { color:#cdbfa0; font-size:13px; margin:6px 0; }
+  #pick .card .sk { color:#9fc3a8; font-size:12px; line-height:1.7; text-align:left; }
+
+  #fight { display:none; flex-direction:column; align-items:center; gap:16px; width:100%; max-width:640px; }
+  .hps { width:100%; display:flex; flex-direction:column; gap:10px; }
+  .hprow { display:flex; align-items:center; gap:10px; }
+  .hprow .lb { width:90px; color:#cdbfa0; font-size:14px; text-align:right; }
+  .bar { flex:1; height:20px; background:rgba(0,0,0,.5); border:1px solid var(--gold); border-radius:3px; overflow:hidden; }
+  .bar .fill { height:100%; background:linear-gradient(180deg, #e04848, #8e2440); transition:width .2s; }
+  .bar .fill.self { background:linear-gradient(180deg, #4ac060, #2a7040); }
+  .hprow .num { width:40px; font-size:15px; color:#f0e6cc; }
+  #fight-log { width:100%; height:120px; overflow-y:auto; background:rgba(0,0,0,.4); border:1px solid rgba(201,168,106,.3); border-radius:4px; padding:8px 12px; font-size:14px; line-height:1.8; }
+  #fight-log div { word-break:break-all; }
+  .btns { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  .btns button { padding:12px 20px; font-size:16px; letter-spacing:2px; border-radius:4px; border:none; }
+  .btns .atk { background:linear-gradient(180deg, #e0b050, #b8860b); color:#1c1a17; box-shadow:0 4px 0 #7a5a10; }
+  .btns .q { background:linear-gradient(180deg, #e06850, #a03424); color:#fff; box-shadow:0 4px 0 #702018; }
+  .btns .e { background:linear-gradient(180deg, #60a0d0, #2a6080); color:#fff; box-shadow:0 4px 0 #1a4058; }
+  .btns .r { background:linear-gradient(180deg, #68d088, #2a8048); color:#fff; box-shadow:0 4px 0 #1a5830; }
+  .btns button:active { transform:translateY(3px); box-shadow:none; }
+  .btns button:disabled { filter:grayscale(.7) brightness(.6); cursor:not-allowed; transform:none; }
+</style>
+</head>
+<body>
+  <div id="login">
+    <h1>越王勾践剑</h1>
+    <p>游客账号 · 无需注册</p>
+    <input id="nick" placeholder="起个昵称" maxlength="12" autocomplete="off">
+    <button onclick="join()">进入大厅</button>
+  </div>
+
+  <div id="lobby">
+    <div class="top">
+      <span id="me"></span>
+      <button onclick="openGame()">▶ 进入剧情游戏</button>
+      <button id="matchBtn" onclick="match()">⚔ 联机对战</button>
+    </div>
+    <div class="cols">
+      <div class="chat">
+        <h3>聊天大厅</h3>
+        <div id="chat-log"></div>
+        <div class="in"><input id="msg" placeholder="说点什么…" maxlength="200" onkeydown="if(event.key==='Enter')send()"><button onclick="send()">发送</button></div>
+      </div>
+      <div class="board">
+        <h3>排行榜（按胜场）</h3>
+        <table id="board-tbl"><tr><th>名次</th><th>昵称</th><th>胜</th><th>负</th></tr></table>
+      </div>
+    </div>
+  </div>
+
+  <div id="battle">
+    <h2>⚔ 擂台比武</h2>
+    <div id="status"></div>
+    <div id="pick">
+      <div style="color:var(--gold-bright);letter-spacing:3px">选择你的兵器</div>
+      <div class="cards" id="weapon-cards"></div>
+    </div>
+    <div id="fight">
+      <div class="hps">
+        <div class="hprow"><div class="lb" id="foeName">对手</div><div class="bar"><div class="fill" id="foeBar" style="width:100%"></div></div><div class="num" id="foeHp">100</div></div>
+        <div class="hprow"><div class="lb" id="myName">我</div><div class="bar"><div class="fill self" id="myBar" style="width:100%"></div></div><div class="num" id="myHp">100</div></div>
+      </div>
+      <div id="fight-log"></div>
+      <div class="btns">
+        <button class="atk" id="btn-atk" onclick="act('atk')">⚔ 普攻</button>
+        <button class="q" id="btn-q" onclick="act('q')">Q 技能</button>
+        <button class="e" id="btn-e" onclick="act('e')">E 技能</button>
+        <button class="r" id="btn-r" onclick="act('r')">R 回春术</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const MAX_HP = 100;
+    const WEAPON_NAME = { qingfeng:'青锋剑', chixiao:'赤霄剑', xuanbing:'玄冰剑', pojun:'破军剑' };
+    let myName = '', mySide = '';
+    let myWeapon = null;
+    let cd = { atk:0, q:0, e:0, r:0 };
+
+    function join() {
+      const n = document.getElementById('nick').value.trim() || ('游客' + Math.floor(1000 + Math.random() * 9000));
+      socket.emit('join', n);
+    }
+    socket.on('joined', (name) => {
+      myName = name;
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('lobby').style.display = 'flex';
+      document.getElementById('me').textContent = '昵称：' + name;
+    });
+
+    function openGame() { window.open('/game', '_blank'); }
+    function send() { const t = document.getElementById('msg').value.trim(); if (t) { socket.emit('chat', t); document.getElementById('msg').value = ''; } }
+    socket.on('chat', (m) => {
+      const d = document.createElement('div');
+      d.textContent = m.system ? ('· ' + m.text) : (m.nickname + '：' + m.text);
+      if (m.system) d.style.color = '#9fc3a8';
+      document.getElementById('chat-log').appendChild(d);
+      const log = document.getElementById('chat-log'); log.scrollTop = log.scrollHeight;
+    });
+    socket.on('leaderboard', (list) => {
+      const tbl = document.getElementById('board-tbl');
+      tbl.innerHTML = '<tr><th>名次</th><th>昵称</th><th>胜</th><th>负</th></tr>';
+      list.forEach(u => { const tr = document.createElement('tr'); tr.innerHTML = '<td>' + u.rank + '</td><td>' + u.nickname + '</td><td>' + u.wins + '</td><td>' + u.losses + '</td>'; tbl.appendChild(tr); });
+    });
+
+    function match() {
+      document.getElementById('matchBtn').disabled = true;
+      document.getElementById('matchBtn').textContent = '匹配中…';
+      socket.emit('match');
+    }
+
+    /* 匹配成功 → 选武器 */
+    socket.on('battle-start', (d) => {
+      mySide = d.you;
+      document.getElementById('lobby').style.display = 'none';
+      document.getElementById('battle').style.display = 'flex';
+      document.getElementById('status').textContent = '对手：' + d.opponent;
+      document.getElementById('pick').style.display = 'flex';
+      document.getElementById('fight').style.display = 'none';
+      const cards = document.getElementById('weapon-cards');
+      cards.innerHTML = '';
+      d.weapons.forEach(w => {
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = '<div class="nm">' + w.name + '</div><div class="ds">' + w.desc + '</div>' +
+          '<div class="sk">普攻 ' + w.atk + ' 伤<br>Q ' + w.q + ' ' + w.qDmg + ' 伤<br>E ' + w.e + ' ' + w.eDmg + ' 伤</div>';
+        c.onclick = () => {
+          myWeapon = w.id;
+          socket.emit('select-weapon', w.id);
+          document.getElementById('pick').style.display = 'none';
+          document.getElementById('status').textContent = '已选 ' + w.name + '，等待对手…';
+        };
+        cards.appendChild(c);
+      });
+    });
+
+    /* 双方选好 → 开战 */
+    socket.on('battle-ready', (d) => {
+      document.getElementById('status').textContent = '对手兵器：' + WEAPON_NAME[d.foeWeapon] + '，开战！';
+      document.getElementById('pick').style.display = 'none';
+      document.getElementById('fight').style.display = 'flex';
+      document.getElementById('myName').textContent = myName + '（' + WEAPON_NAME[d.myWeapon] + '）';
+      document.getElementById('foeName').textContent = '对手（' + WEAPON_NAME[d.foeWeapon] + '）';
+      setHP(100, 100);
+      document.getElementById('fight-log').innerHTML = '';
+      log('⚔ 比武开始！');
+    });
+
+    function act(a) {
+      socket.emit('action', a);
+      // 本地冷却预估（服务器仍会二次校验）
+      const now = Date.now();
+      const cdMap = { atk: 800, q: 4000, e: 6000, r: 10000 };
+      cd[a] = now + cdMap[a];
+      updateBtns();
+    }
+    function setHP(my, foe) {
+      document.getElementById('myHp').textContent = my;
+      document.getElementById('foeHp').textContent = foe;
+      document.getElementById('myBar').style.width = (my / MAX_HP * 100) + '%';
+      document.getElementById('foeBar').style.width = (foe / MAX_HP * 100) + '%';
+    }
+    function log(t) {
+      const d = document.createElement('div');
+      d.textContent = t;
+      document.getElementById('fight-log').appendChild(d);
+      const lg = document.getElementById('fight-log'); lg.scrollTop = lg.scrollHeight;
+    }
+    function updateBtns() {
+      const now = Date.now();
+      document.getElementById('btn-atk').disabled = now < cd.atk;
+      document.getElementById('btn-q').disabled = now < cd.q;
+      document.getElementById('btn-e').disabled = now < cd.e;
+      document.getElementById('btn-r').disabled = now < cd.r;
+    }
+
+    socket.on('hp', (d) => {
+      const my = mySide === 'a' ? d.a : d.b;
+      const foe = mySide === 'a' ? d.b : d.a;
+      setHP(my, foe);
+      const who = d.attacker === mySide ? '我' : '对手';
+      const what = d.action === 'r' ? ('回春术，回复 ' + d.heal + ' 血') : (d.text + '，造成 ' + d.dmg + ' 伤害');
+      log(who + ' 使用 ' + what);
+    });
+
+    socket.on('battle-over', (d) => {
+      document.getElementById('status').textContent = (d.winner === myName) ? '🎉 你赢了！' : ('💀 你输了，对手：' + d.winner);
+      setTimeout(() => {
+        document.getElementById('battle').style.display = 'none';
+        document.getElementById('lobby').style.display = 'flex';
+        document.getElementById('matchBtn').disabled = false;
+        document.getElementById('matchBtn').textContent = '⚔ 联机对战';
+        myWeapon = null;
+      }, 2600);
+    });
+
+    setInterval(updateBtns, 200);
+  </script>
+</body>
+</html>
