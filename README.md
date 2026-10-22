@@ -36,3 +36,6 @@ npm start        # 或 node server.js
 - `server.js`：Node.js + Express + Socket.IO 后端（cluster 多进程 + 主进程权威状态）
 - `public/index.html`：大厅页（登录/聊天/排行榜/对战）
 - `public/game.html`：原单机剧情游戏（玩法剧情未改动）
+- `public/relics.html`：文物图鉴（55 件文物 + AI 讲解 + 猜文物测验 + 两个小游戏）
+- `public/puzzle.html`：文物修复大师 · 3×3 拼图（29 关，关卡顺序随机）
+- `public/xunmai.html`：寻脉 · 一笔画（16 件文物）
